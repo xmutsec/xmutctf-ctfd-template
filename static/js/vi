@@ -1,0 +1,9 @@
+new TencentCaptcha(document.getElementById('captcha'), QCLOUD_CAPTCHA_ID, qcloudCallback, {});
+
+function qcloudCallback (res) {
+    if (res.ret === 0) {
+      $('#captcha-token').val(res.ticket);
+      $('#captcha-rand-str').val(res.randstr);
+    }
+   $("#Form").submit();
+};

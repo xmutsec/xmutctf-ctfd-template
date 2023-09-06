@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{{ Configs.ctf_name }}</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="shortcut icon" href="{{ Configs.ctf_small_icon }}" type="image/x-icon">
+	<link rel="stylesheet" href="{{ url_for('views.themes', path='css/fonts.css') }}">
+	<link rel="stylesheet" href="{{ url_for('views.themes', path='css/main.css') }}">
+	<link rel="stylesheet" href="{{ url_for('views.themes', path='css/core.css') }}">
+	<meta name="start_in" content="{{ ctf_starts_in() }}">
+	<meta name="ends_in" content="{{ ctf_ends_in() }}">
+	{% block stylesheets %}
+	{% endblock %}
+	<style>
+		.jumbotron {
+			background-color: #3f51b5;
+			color: #fff;
+			border-radius: 0;
+			text-align: center;
+			background: url("http://10.234.0.233:29999/") center center no-repeat;
+			background-size: cover;
+			background-position: right;
+		}
+	</style>
+	{{ Plugins.styles }}
+	<script type="text/javascript">
+		var init = {
+			'urlRoot': "{{ request.script_root }}",
+			'csrfNonce': "{{ Session.nonce }}",
+			'userMode': "{{ Configs.user_mode }}",
+			'userId': {{ Session.id }},
+			'start': {{ Configs.start | tojson }},
+			'end': {{ Configs.end | tojson }},
+			'theme_settings': {{ Configs.theme_settings | tojson }}
+		};
+	var QCLOUD_CAPTCHA_ID = '2017110896';
+	</script>
+	{{ Configs.theme_header }}
+</head>
+<body onload="MatchCount()">
+	{% include "components/navbar.html" %}
+
+	<main role="main">
+		{% block content %}
+		{% endblock %}
+	</main>
+
+	 <footer class="footer">
+		<div class="container text-center">
+			<a href="http://www.xmutsec.com" class="text-secondary">
+				<small class="text-muted">厦门理工大学信息安全协会</small>
+			</a>
+		</div>
+	</footer> 
+	<script defer src="/themes/core/static/js/vendor.bundle.min.js?d=bf814cae"></script>
+	<script defer src="/themes/core/static/js/core.min.js?d=bf814cae"></script>
+	<script defer src="/themes/core/static/js/helpers.min.js?d=bf814cae"></script>
+	{% block entrypoint %}
+	<script defer src="/themes/core/static/js/pages/main.min.js?d=bf814cae"></script>
+
+	{% endblock %}
+
+	{% block scripts %}
+	{% endblock %}
+	{{ Plugins.scripts }}
+
+	{{ Configs.theme_footer }}
+</body>
+</html>

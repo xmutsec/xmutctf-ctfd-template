@@ -1,0 +1,185 @@
+{% extends "fake_base.html" %}
+
+{% block stylesheets %}
+{% endblock %}
+
+{% block content %}
+	<div class="jumbotron">
+		<div class="container">
+			<h1>用户</h1>
+			<span style="text-shadow: 1px 1px 1px rgb(0,0,0);font-size: 14px;">等级制度说明：<a href="">关于XMUTOJ用户等级机制说明</a></span>
+		</div>
+	</div>
+	<style>
+
+	</style>
+	<div class="xmut_container">
+		<div class="row">
+			<div class="col-md-12">
+				{% if q and field %}
+				<h5 class="text-muted text-center">
+					Searching for users with <strong>{{ field }}</strong> matching <strong>{{ q }}</strong>
+				</h5>
+				<h6 class="text-muted text-center pb-3">
+					Page {{ users.page }} of {{ users.total }} results
+				</h6>
+				{% endif %}
+
+				{% with form = Forms.users.PublicUserSearchForm(field=field, q=q) %}
+				<form method="GET" class="form-inline">
+					<div class="form-group col-md-2">
+						{{ form.field(class="form-control custom-select w-100") }}
+					</div>
+					<div class="form-group col-md-8">
+						{{ form.q(class="form-control w-100", placeholder="Search for matching users") }}
+					</div>
+					<div class="form-group col-md-2">
+						<button type="submit" class="btn btn-primary w-100">
+							<i class="fas fa-search" aria-hidden="true"></i>
+						</button>
+					</div>
+				</form>
+				{% endwith %}
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table table-striped">
+					<thead>
+					<tr>
+						<td><b>用户名</b></td>
+						<td><b>荣誉等级</b></td>
+						<td><b>经验值</b></td>
+						<td class="d-none d-md-table-cell d-lg-table-cell"><b>备注</b></td>
+						<td class="d-none d-md-table-cell d-lg-table-cell"><b>地区</b></td>
+					</tr>
+					</thead>
+					<tbody>
+						
+					{% for user in users.items %}
+						<tr>
+							<td>
+								{% if user.website and (user.website.startswith('http://') or user.website.startswith('https://')) %}
+									{% if user.name == "asdasdjoaisjioasdjoia" %}
+										<img src="{{ user.website }}" class="xmut_mini_avatar">
+										<img src="/files/27a4deda4d29f74de3f3bdd920c4a137/0cd9ea1a4cc28c85e8299631587d47599f678037.png" style="
+										width: 48px;
+										margin-left: -51px;
+										z-index: 99;
+										margin-top: -2px;">
+										<img src="/files/0dd5e0206f50a9ca3d40c5c2a02bdcc9/official.svg" style="width: 31px;">
+									{% elif user.name == "xiaobin" %}
+										<img src="{{ user.website }}" class="xmut_mini_avatar">
+										<img src="/files/17d992b01f6dd2ed15b83a972f772e9d/ff5bde4a6337140b632beffd0cbbaaf927c03ac0.webp" style="
+										width: 48px;
+										margin-left: -51px;
+										z-index: 99;
+										margin-top: -2px;">
+									{% else %}
+										<img src="{{ user.website }}" class="xmut_mini_avatar">
+									{% endif %}
+								{% endif %}
+								{% if scores_visible() %}
+									<a href="{{ url_for('users.public', user_id=user.id) }}">
+										{{ user.name | truncate(50) }}
+									</a>
+								{% else %}
+									<span>{{ user.name | truncate(50) }}</span>
+								{% endif %}
+								{% if user.oauth_id %}
+									<a href="https://majorleaguecyber.org/u/{{ user.name }}">
+										<span class="badge badge-primary">Official</span>
+									</a>
+								{% endif %}
+							</td>
+							<td>
+								<!-- 
+									等级机制
+									0-50
+									50-100
+									100-150
+									150-200
+									200-250
+									250-300
+								 -->
+								{% if user.score >= 0 and user.score < 100 %}
+								先锋 <img src="/files/d39f41c452c722e76c85f4006685657a/lv2.png" style="width: 35px;position: absolute;margin-top:2px">
+								{% elif user.score >= 100 and user.score < 300 %}
+								卫士 <img src="/files/8e18aa3debca250aad54ec8147e16a8e/lv3.png" style="width: 35px;position: absolute;margin-top:2px">
+								{% elif user.score >= 300 and user.score < 500 %}
+								中军 <img src="/files/6e2aa9e323e1150ba634e149c2741deb/lv4.png" style="width: 35px;position: absolute;margin-top:2px">
+								{% elif user.score >= 500 and user.score < 800 %}
+								统帅 <img src="/files/c10a064fe27deb5eef38086ec61ac8b4/sql_inner.png" style="width: 35px;position: absolute;margin-top:2px">
+								{% elif user.score >= 800 and user.score < 1200 %}
+								一代传奇 <img src="/files/016aec3ec613c8900b13af8001980de0/critical.png" style="width: 35px;position: absolute;margin-top:2px">
+								{% elif user.score >= 1200 and user.score < 1800 %}
+								万古流芳 <img src="/files/6637ebdc51694bf97498f268c31872b0/lv7.png" style="width: 35px;position: absolute;margin-top:2px">
+								{% else %}
+								超凡入圣 <img src="/files/6637ebdc51694bf97498f268c31872b0/lv7.png" style="width: 35px;position: absolute;margin-top:2px">
+								{% endif %}
+							</td>
+							<td>{{ user.score }}</td>
+							<td class="d-none d-md-table-cell d-lg-table-cell">
+								{% if user.affiliation %}
+									{% if user.affiliation | length > 50 %}
+										<span data-toggle="tooltip" data-placement="top" title="{{ user.affiliation }}">
+									{% if user.affiliation %}{{ user.affiliation | truncate(50) }}{% endif %}
+								</span>
+									{% else %}
+										<span>
+									{% if user.affiliation %}{{ user.affiliation | truncate(50) }}{% endif %}
+								</span>
+									{% endif %}
+								{% endif %}
+							</td>
+							<td class="d-none d-md-table-cell d-lg-table-cell">
+								<span>
+									{% if user.country %}
+										{% if user.country.lower() == "zjdx" %}
+											<img src="/files/f84984114eab3ce16fdb298494d711b7/11.png" style="width: 40px;">
+										{% else %}
+											<i class="flag-{{ user.country.lower() }}"></i>
+										{% endif %}
+										{{ lookup_country_code(user.country) }}
+									{% endif %}
+								</span>
+							</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		{% if users.pages > 1 %}
+			<div class="row">
+				<div class="col-md-12">
+					<div class="text-center">Page
+						<br>
+						{% if users.page != 1 %}
+						<a href="{{ prev_page }}">&lt;&lt;&lt;</a>
+						{% endif %}
+						<select class="page-select">
+							{% for page in range(1, users.pages + 1) %}
+							<option {% if users.page == page %}selected{% endif %}>{{ page }}</option>
+							{% endfor %}
+						</select>
+						{% if users.next_num %}
+						<a href="{{ next_page }}">&gt;&gt;&gt;</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}
+<script>
+	var score_test = {{ {
+		'name': user.name,
+		'score': user.score,
+	} | tojson }};
+</script>
+{% block scripts %}
+{% endblock %}

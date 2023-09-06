@@ -1,0 +1,96 @@
+{% extends "fake_base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+	<div class="container">
+		<script>
+			function RollKingDate(){
+			   var date = new Date();
+			   var date1 = date.toLocaleString();
+			   var div1 = document.getElementById("rollKingTimes");
+			   div1.innerHTML = date1;
+		    }
+		    setInterval("RollKingDate()",1000);
+	 	</script>
+		<h1 style="text-shadow: 1px 1px 1px rgb(0,0,0);">内卷榜</h1>
+		<span style="text-shadow: 1px 1px 1px rgb(0,0,0);font-size: 14px;">喂(#`O′)，已经<span id="rollKingTimes" style="font-size:18px;color:red;"></span>了啊，别卷啦，身体要紧！！</span>
+	</div>
+</div>
+<div class="container">
+	{% include "components/errors.html" %}
+
+	<div id="score-graph" class="row d-flex align-items-center">
+		<div class="col-md-12 text-center">
+			<i class="fas fa-circle-notch fa-spin fa-3x fa-fw spinner"></i>
+		</div>
+	</div>
+
+	{% cache 60, CacheKeys.PUBLIC_SCOREBOARD_TABLE %}
+	{% if standings %}
+	<div id="scoreboard" class="row">
+		<div class="col-md-12">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<td scope="col"><b>排名</b></td>
+						<td scope="col"><b>荣誉等级</b></td>
+						<td scope="col"><b>{{ get_mode_as_word(capitalize=True) }}</b></td>
+						<td scope="col"><b>得分</b></td>
+					</tr>
+				</thead>
+				<tbody>
+				{% for standing in standings %}
+					<tr>
+						<th scope="row" class="text-center">{{ loop.index }}</th>
+						<td>
+							{% if standing.score >= 0 and standing.score < 100 %}
+							先锋 <img src="/files/d39f41c452c722e76c85f4006685657a/lv2.png" style="width: 35px;position: absolute;margin-top:2px">
+							{% elif standing.score >= 100 and standing.score < 300 %}
+							卫士 <img src="/files/8e18aa3debca250aad54ec8147e16a8e/lv3.png" style="width: 35px;position: absolute;margin-top:2px">
+							{% elif standing.score >= 300 and standing.score < 500 %}
+							中军 <img src="/files/6e2aa9e323e1150ba634e149c2741deb/lv4.png" style="width: 35px;position: absolute;margin-top:2px">
+							{% elif standing.score >= 500 and standing.score < 800 %}
+							统帅 <img src="/files/c10a064fe27deb5eef38086ec61ac8b4/sql_inner.png" style="width: 35px;position: absolute;margin-top:2px">
+							{% elif standing.score >= 800 and standing.score < 1200 %}
+							一代传奇 <img src="/files/016aec3ec613c8900b13af8001980de0/critical.png" style="width: 35px;position: absolute;margin-top:2px">
+							{% elif standing.score >= 1200 and standing.score < 1800 %}
+							万古流芳 <img src="/files/6637ebdc51694bf97498f268c31872b0/lv7.png" style="width: 35px;position: absolute;margin-top:2px">
+							{% else %}
+							超凡入圣 <img src="/files/6637ebdc51694bf97498f268c31872b0/lv7.png" style="width: 35px;position: absolute;margin-top:2px">
+							{% endif %}
+					    </td>
+						<td>
+							{% if standing.website %}
+								<img src="{{ standing.website }}" class="xmut_mini_avatar">
+							{% endif %}
+							<a href="{{ generate_account_url(standing.account_id) }}">
+								{{ standing.name | truncate(50) }}
+								{% if standing.oauth_id %}
+									{% if Configs.user_mode == 'teams' %}
+									<a href="https://majorleaguecyber.org/t/{{ standing.name }}">
+										<span class="badge badge-primary">官方</span>
+									</a>
+									{% elif Configs.user_mode == 'users' %}
+									<a href="https://majorleaguecyber.org/u/{{ standing.name }}">
+										<span class="badge badge-primary">官方</span>
+									</a>
+									{% endif %}
+								{% endif %}
+							</a>
+						</td>
+						<td>{{ standing.score }}</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	{% endif %}
+	{% endcache %}
+</div>
+<script defer src="{{ url_for('views.themes', path='js/pages/scoreboard.js') }}"></script>
+<script defer src="{{ url_for('views.themes', path='js/echarts.bundle.js') }}"></script>
+
+{% endblock %}
+{% block scripts %}
+{% endblock %}

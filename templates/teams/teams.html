@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block stylesheets %}
+{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+	<div class="container">
+		<h1>队伍</h1>
+	</div>
+</div>
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+			{% if q and field %}
+			<h5 class="text-muted text-center">
+				Searching for teams with <strong>{{ field }}</strong> matching <strong>{{ q }}</strong>
+			</h5>
+			<h6 class="text-muted text-center pb-3">
+				Page {{ teams.page }} of {{ teams.total }} results
+			</h6>
+			{% endif %}
+
+			{% with form = Forms.teams.PublicTeamSearchForm(field=field, q=q) %}
+			<form method="GET" class="form-inline">
+				<div class="form-group col-md-2">
+					{{ form.field(class="form-control custom-select w-100") }}
+				</div>
+				<div class="form-group col-md-8">
+					{{ form.q(class="form-control w-100", placeholder="Search for matching teams") }}
+				</div>
+				<div class="form-group col-md-2">
+					<button type="submit" class="btn btn-primary w-100">
+						<i class="fas fa-search" aria-hidden="true"></i>
+					</button>
+				</div>
+			</form>
+			{% endwith %}
+		</div>
+	</div>
+
+	<hr>
+
+	<div class="row">
+		<div class="col-md-12">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<td><b>队伍</b></td>
+						<td class="d-none d-md-table-cell d-lg-table-cell"><b>荣誉等级</b></td>
+						<td class="d-none d-md-table-cell d-lg-table-cell"><b>备注</b></td>
+						<td class="d-none d-md-table-cell d-lg-table-cell"><b>地区</b></td>
+					</tr>
+				</thead>
+				<tbody>
+				{% for team in teams.items %}
+					<tr>
+						<td>
+						{% if team.website %}
+							<img src="{{ team.website }}" class="xmut_mini_avatar">
+						{% endif %}
+						{% if scores_visible() %}
+							<a href="{{ url_for('teams.public', team_id=team.id) }}">{{ team.name | truncate(50) }}</a>
+						{% else %}
+							<span>{{ team.name | truncate(50) }}</span>
+						{% endif %}
+						{% if team.oauth_id %}
+							<a href="https://majorleaguecyber.org/t/{{ team.name }}">
+								<span class="badge badge-primary">Official</span>
+							</a>
+						{% endif %}
+						</td>
+						<td>
+							 {% if team.score >= 0 and team.score < 100 %}
+							 先锋 <img src="/files/d39f41c452c722e76c85f4006685657a/lv2.png" style="width: 35px;position: absolute;margin-top:2px">
+							 {% elif team.score >= 100 and team.score < 300 %}
+							 卫士 <img src="/files/8e18aa3debca250aad54ec8147e16a8e/lv3.png" style="width: 35px;position: absolute;margin-top:2px">
+							 {% elif team.score >= 300 and team.score < 500 %}
+							 中军 <img src="/files/6e2aa9e323e1150ba634e149c2741deb/lv4.png" style="width: 35px;position: absolute;margin-top:2px">
+							 {% elif team.score >= 500 and team.score < 800 %}
+							 统帅 <img src="/files/c10a064fe27deb5eef38086ec61ac8b4/sql_inner.png" style="width: 35px;position: absolute;margin-top:2px">
+							 {% elif team.score >= 800 and team.score < 1200 %}
+							 一代传奇 <img src="/files/016aec3ec613c8900b13af8001980de0/critical.png" style="width: 35px;position: absolute;margin-top:2px">
+							 {% elif team.score >= 1200 and team.score < 1800 %}
+							 万古流芳 <img src="/files/6637ebdc51694bf97498f268c31872b0/lv7.png" style="width: 35px;position: absolute;margin-top:2px">
+							 {% else %}
+							 超凡入圣 <img src="/files/6637ebdc51694bf97498f268c31872b0/lv7.png" style="width: 35px;position: absolute;margin-top:2px">
+							 {% endif %}
+						</td>
+						<!-- <td class="text-center" style="width: 10px;">
+							{% if team.website and (team.website.startswith('http://') or team.website.startswith('https://')) %}
+								<a href="{{ team.website }}" target="_blank" rel="noopener">
+									<i class="fas fa-external-link-alt" data-toggle="tooltip" data-placement="top" title="{{ team.website }}"></i>
+								</a>
+							{% endif %}
+						</td> -->
+						<td class="d-none d-md-table-cell d-lg-table-cell">
+							{% if team.affiliation %}
+								{% if team.affiliation | length > 50 %}
+								<span data-toggle="tooltip" data-placement="top" title="{{ team.affiliation }}">
+									{% if team.affiliation %}{{ team.affiliation | truncate(50) }}{% endif %}
+								</span>
+								{% else %}
+								<span>
+									{% if team.affiliation %}{{ team.affiliation | truncate(50) }}{% endif %}
+								</span>
+								{% endif %}
+							{% endif %}
+						</td>
+						<td class="d-none d-md-table-cell d-lg-table-cell text-center">
+							<span>
+								{% if team.country %}
+								{% if team.country.lower() == "zjdx" %}
+									<img src="/files/f84984114eab3ce16fdb298494d711b7/11.png" style="width: 40px;">
+								{% else %}
+									<i class="flag-{{ team.country.lower() }}"></i>
+								{% endif %}
+								{{ lookup_country_code(team.country) }}
+								{% endif %}
+	
+							</span>
+						</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	{% if teams.pages > 1 %}
+	<div class="row">
+		<div class="col-md-12">
+			<div class="text-center">Page
+				<br>
+				{% if teams.page != 1 %}
+				<a href="{{ prev_page }}">&lt;&lt;&lt;</a>
+				{% endif %}
+				<select class="page-select">
+					{% for page in range(1, teams.pages + 1) %}
+					<option {% if teams.page == page %}selected{% endif %}>{{ page }}</option>
+					{% endfor %}
+				</select>
+				{% if teams.next_num %}
+				<a href="{{ next_page }}">&gt;&gt;&gt;</a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+	{% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
